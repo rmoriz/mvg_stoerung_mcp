@@ -9,7 +9,7 @@ description = "MCP Server for MVG Störung (Munich Public Transport Disruptions)
 authors = [
     {name = "MVG MCP Server", email = "dev@example.com"}
 ]
-license = {text = "MIT"}
+license = {text = "CC0-1.0"}
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [

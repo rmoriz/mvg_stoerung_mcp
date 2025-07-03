@@ -137,7 +137,7 @@ The server handles various error conditions:
 
 ## License
 
-MIT License - see the project for details.
+This project is dedicated to the public domain under the CC0 1.0 Universal license. See the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
