@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mvg-stoerung": {
+      "command": "python3",
+      "args": ["mvg_mcp_server.py"],
+      "cwd": "/Users/rmoriz/Sync/Projekte/mvg_stoerung_mcp",
+      "description": "MVG Stšrung (Munich Public Transport Disruptions) MCP Server"
+    }
+  }
+}
