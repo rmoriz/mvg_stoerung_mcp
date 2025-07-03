@@ -2,6 +2,8 @@
 
 A Model Context Protocol (MCP) server that provides cached access to Munich Public Transport (MVG) disruption data.
 
+![grafik](https://github.com/user-attachments/assets/266d6068-b29c-4abe-8306-3e2e5f91445c)
+
 ## Features
 
 - **Cached Data**: Automatically caches MVG incident data for at least 10 minutes to reduce API calls
