@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "mvg-stoerung": {
+      "command": "./venv/bin/python",
+      "args": ["mvg_mcp_server.py"],
+      "cwd": ".",
+      "description": "MVG Störung (Munich Public Transport Disruptions) MCP Server - Provides cached access to MVG incident data with 10+ minute caching",
+      "env": {
+        "PYTHONPATH": "."
+      }
+    }
+  }
+}
