@@ -1,163 +1,65 @@
-#!/usr/bin/env python3
-"""
-Test script for MVG MCP Server
-"""
-
-import asyncio
 import json
-import sys
-from mvg_mcp_server import MVGMCPServer, MVGDataFetcher, MVGCache
+import pytest
+from mvg_mcp_server import (
+    MVGDataFetcher, 
+    MVGCache, 
+    get_incidents, 
+    handle_call_tool,
+    cache
+)
 
-
-async def test_data_fetcher():
-    """Test the MVG data fetcher"""
-    print("Testing MVG Data Fetcher...")
-    
+@pytest.mark.asyncio
+async def test_data_fetcher(mock_mvg_api):
+    """Test the MVG data fetcher with a mocked API."""
     fetcher = MVGDataFetcher()
     try:
-        # Test fetching raw data
-        print("Fetching raw data from MVG API...")
-        raw_data = await fetcher.fetch_raw_data()
-        print(f"Raw data type: {type(raw_data)}")
-        
-        if isinstance(raw_data, list):
-            print(f"Received {len(raw_data)} messages")
-        elif isinstance(raw_data, dict):
-            print(f"Received dict with keys: {list(raw_data.keys())}")
-        
-        # Test filtering incidents
-        print("Filtering incidents...")
-        incidents = fetcher.filter_incidents(raw_data)
-        print(f"Found {len(incidents)} incidents")
-        
-        # Test enhancing data
-        if incidents:
-            print("Testing data enhancement...")
-            enhanced = fetcher.enhance_incident_data(incidents[0])
-            print(f"Enhanced incident keys: {list(enhanced.keys())}")
-            
-            # Show sample incident
-            print("\nSample incident:")
-            print(json.dumps(enhanced, indent=2, ensure_ascii=False)[:500] + "...")
-        
-        # Test full fetch_incidents method
-        print("\nTesting full fetch_incidents method...")
-        all_incidents = await fetcher.fetch_incidents()
-        print(f"Total incidents fetched: {len(all_incidents)}")
-        
-    except Exception as e:
-        print(f"Error testing data fetcher: {e}")
-        return False
+        incidents = await fetcher.fetch_incidents()
+        assert len(incidents) == 1
+        assert incidents[0]["title"] == "U-Bahn Störung"
     finally:
         await fetcher.close()
-    
-    return True
-
 
 def test_cache():
-    """Test the cache functionality"""
-    print("\nTesting MVG Cache...")
+    """Test the cache functionality."""
+    local_cache = MVGCache(cache_duration_minutes=1)
+    assert local_cache.is_expired()
     
-    cache = MVGCache(cache_duration_minutes=1)  # 1 minute for testing
-    
-    # Test empty cache
-    print("Testing empty cache...")
-    assert cache.is_expired() == True
-    assert cache.get() is None
-    
-    cache_info = cache.get_cache_info()
-    print(f"Empty cache info: {cache_info}")
-    assert cache_info["status"] == "empty"
-    
-    # Test setting data
-    print("Testing cache set...")
     test_data = [{"id": 1, "title": "Test incident"}]
-    cache.set(test_data)
+    local_cache.set(test_data)
     
-    assert cache.is_expired() == False
-    cached_data = cache.get()
-    assert cached_data == test_data
-    
-    cache_info = cache.get_cache_info()
-    print(f"Filled cache info: {cache_info}")
-    assert cache_info["status"] == "valid"
-    assert cache_info["cached_items"] == 1
-    
-    print("Cache tests passed!")
-    return True
+    assert not local_cache.is_expired()
+    assert local_cache.get() == test_data
 
+@pytest.mark.asyncio
+async def test_get_incidents_caching(mock_mvg_api):
+    """Test the get_incidents function with caching."""
+    # Clear global cache for predictable test
+    cache._cached_data = None
 
-async def test_mcp_server():
-    """Test the MCP server functionality"""
-    print("\nTesting MCP Server...")
-    
-    server = MVGMCPServer()
-    
-    try:
-        # Test getting incidents
-        print("Testing get_incidents...")
-        incidents = await server.get_incidents()
-        print(f"Retrieved {len(incidents)} incidents")
-        
-        # Test cache behavior
-        print("Testing cache behavior...")
-        cached_incidents = await server.get_incidents()  # Should use cache
-        assert len(cached_incidents) == len(incidents)
-        
-        # Test force refresh
-        print("Testing force refresh...")
-        fresh_incidents = await server.get_incidents(force_refresh=True)
-        print(f"Fresh incidents: {len(fresh_incidents)}")
-        
-        print("MCP Server tests passed!")
-        return True
-        
-    except Exception as e:
-        print(f"Error testing MCP server: {e}")
-        return False
-    finally:
-        await server.cleanup()
+    # First call should fetch from API
+    incidents = await get_incidents()
+    assert len(incidents) == 1
+    assert mock_mvg_api.get("/").call_count == 1
 
+    # Second call should use cache
+    incidents2 = await get_incidents()
+    assert len(incidents2) == 1
+    assert mock_mvg_api.get("/").call_count == 1 # Should not have increased
 
-async def main():
-    """Run all tests"""
-    print("Starting MVG MCP Server Tests")
-    print("=" * 50)
-    
-    tests_passed = 0
-    total_tests = 3
-    
-    # Test data fetcher
-    if await test_data_fetcher():
-        tests_passed += 1
-        print("✓ Data fetcher tests passed")
-    else:
-        print("✗ Data fetcher tests failed")
-    
-    # Test cache
-    if test_cache():
-        tests_passed += 1
-        print("✓ Cache tests passed")
-    else:
-        print("✗ Cache tests failed")
-    
-    # Test MCP server
-    if await test_mcp_server():
-        tests_passed += 1
-        print("✓ MCP server tests passed")
-    else:
-        print("✗ MCP server tests failed")
-    
-    print("=" * 50)
-    print(f"Tests passed: {tests_passed}/{total_tests}")
-    
-    if tests_passed == total_tests:
-        print("All tests passed! 🎉")
-        return 0
-    else:
-        print("Some tests failed! ❌")
-        return 1
+@pytest.mark.asyncio
+async def test_search_incidents(mock_mvg_api):
+    """Test the search_incidents tool."""
+    cache._cached_data = None # Clear cache
 
+    # Search for "U-Bahn"
+    search_args = {"query": "U-Bahn"}
+    result_content = await handle_call_tool("search_incidents", search_args)
+    result = json.loads(result_content[0].text)
+    assert result["count"] == 1
+    assert result["incidents"][0]["title"] == "U-Bahn Störung"
 
-if __name__ == "__main__":
-    sys.exit(asyncio.run(main()))
+    # Search for something that doesn't exist
+    search_args = {"query": "S-Bahn"}
+    result_content = await handle_call_tool("search_incidents", search_args)
+    result = json.loads(result_content[0].text)
+    assert result["count"] == 0
