@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "mvg-stoerung": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "ghcr.io/rmoriz/mvg_stoerung_mcp:latest"
+      ]
+    }
+  }
+}
