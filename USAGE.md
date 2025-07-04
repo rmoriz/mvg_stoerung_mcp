@@ -139,3 +139,11 @@ Add to your MCP configuration:
 
 ### Programmatic access
 See `example_client.py` for a complete example of how to interact with the server programmatically.
+
+---
+
+*This usage guide is for informational purposes only. The data is provided by MVG and is subject to change.*
+
+## Disclaimer
+
+This project is not an official MVG project, not endorsed or recommended. Please ask MVG for permission prior to using it.

@@ -2,6 +2,10 @@
 """
 MCP Server for MVG Störung (Munich Public Transport Disruptions)
 Provides cached access to MVG incident data with at least 10-minute caching
+
+Disclaimer:
+This project is not an official MVG project, not endorsed or recommended.
+People should ask MVG for permission prior using it.
 """
 
 import asyncio

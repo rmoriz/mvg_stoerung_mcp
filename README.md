@@ -144,3 +144,7 @@ This project is dedicated to the public domain under the CC0 1.0 Universal licen
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
+
+## Disclaimer
+
+This project is not an official MVG project, not endorsed or recommended. Please ask MVG for permission prior to using it.

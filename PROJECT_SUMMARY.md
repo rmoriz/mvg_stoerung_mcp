@@ -137,3 +137,7 @@ Each incident includes:
 ## 🚀 Ready for Production
 
 The MCP server is fully functional and ready for use with any MCP-compatible client. It successfully provides cached access to Munich Public Transport disruption data with the requested 10+ minute caching duration.
+
+## Disclaimer
+
+This project is not an official MVG project, not endorsed or recommended. Please ask MVG for permission prior to using it.
