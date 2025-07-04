@@ -14,13 +14,9 @@ To connect your MCP client to this server, use the following configuration:
 {
   "mcpServers": {
     "mvg-stoerung": {
-      "command": "docker",
-      "args": [
-        "run",
-        "--rm",
-        "-i",
-        "ghcr.io/rmoriz/mvg_stoerung_mcp:latest"
-      ]
+      "command": "python3",
+      "args": ["mvg_mcp_server.py"],
+      "cwd": "/path/to/mvg_stoerung_mcp"
     }
   }
 }
