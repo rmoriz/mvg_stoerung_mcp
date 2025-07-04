@@ -1,16 +1,4 @@
-
-
-import json
-import asyncio
-from mcp.server import Server
-
-
-async def generate_dxt_file(server: Server, list_tools_handler, list_resources_handler) -> str:
-    """Generates DXT file content for Claude and other AI assistants."""
-    tools = await list_tools_handler()
-    resources = await list_resources_handler()
-
-    dxt_content = """# MVG Störung MCP Server
+# MVG Störung MCP Server
 
 ## Project Overview
 This is a Model Context Protocol (MCP) server that provides cached access to Munich Public Transport (MVG) disruption data. The server implements the MCP protocol to expose real-time transit incident information with intelligent caching.
@@ -34,34 +22,34 @@ The server consists of three main components:
 - Enhances data with human-readable timestamps
 
 ## MCP Tools Available
-"""
 
-    for tool in tools:
-        dxt_content += f"\n### {tool.name}\n"
-        dxt_content += f"Description: {tool.description}\n"
-        
-        if tool.inputSchema and tool.inputSchema.get('properties'):
-            dxt_content += "Parameters:\n"
-            for prop, schema in tool.inputSchema['properties'].items():
-                prop_type = schema.get('type', 'unknown')
-                description = schema.get('description', 'No description')
-                required = prop in tool.inputSchema.get('required', [])
-                req_text = " (required)" if required else " (optional)"
-                default = schema.get('default')
-                default_text = f" [default: {default}]" if default is not None else ""
-                dxt_content += f"  - {prop} ({prop_type}){req_text}: {description}{default_text}\n"
-        else:
-            dxt_content += "Parameters: None\n"
+### get_mvg_incidents
+Description: Get current MVG incidents (cached for 10+ minutes)
+Parameters:
+  - force_refresh (boolean) (optional): Force refresh cache even if not expired [default: False]
 
-    dxt_content += "\n## MCP Resources Available\n"
-    
-    for resource in resources:
-        dxt_content += f"\n### {resource.uri}\n"
-        dxt_content += f"Name: {resource.name}\n"
-        dxt_content += f"Description: {resource.description}\n"
-        dxt_content += f"MIME Type: {resource.mimeType}\n"
+### get_cache_status
+Description: Get information about the cache status
+Parameters: None
 
-    dxt_content += """
+### search_incidents
+Description: Search incidents by line, title, or description
+Parameters:
+  - query (string) (required): Search query (searches in title, description, and line labels)
+  - line (string) (optional): Filter by specific line (e.g., 'U6', 'S1', 'Bus 100')
+
+## MCP Resources Available
+
+### mvg://incidents
+Name: MVG Incidents
+Description: Current incidents from Munich Public Transport (MVG)
+MIME Type: application/json
+
+### mvg://cache-info
+Name: Cache Information
+Description: Information about the current cache status
+MIME Type: application/json
+
 
 ## Usage Examples
 
@@ -110,7 +98,3 @@ Configure in MCP client as:
 
 ## Disclaimer
 Not an official MVG project. Please ask MVG for permission before use.
-"""
-
-    return dxt_content
-

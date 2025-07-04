@@ -1,5 +1,5 @@
 
-name: Generate DXT.md
+name: Generate DXT file
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
-      - name: Generate DXT.md
+      - name: Generate .dxt file
         run: |
           source venv/bin/activate
           python generate_dxt.py
@@ -31,5 +31,5 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add DXT.md
-          git diff --staged --quiet || (git commit -m 'docs: update DXT.md' && git push)
+          git add mvg_stoerung_mcp.dxt
+          git diff --staged --quiet || (git commit -m 'docs: update mvg_stoerung_mcp.dxt' && git push)
